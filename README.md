@@ -5,12 +5,6 @@ Show my code here
 
 There're samples of my code in C++/Java/Python.
 
-Code_show---+---cpp-----+--main.cpp
-			|			+--memManager.cpp
-			|			+--memManager.h
-			+---java-------OauthManager.java
-			+---python-----connect_four.py
-
 1. C++
 	A simple memory allocate simulator.
 2. Java
