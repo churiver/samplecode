@@ -23,14 +23,15 @@ priority_queue<process, vector<process>, processComp> procQueue;
 
 void split(string & s, vector<string> & proc_info);
 
-int main(int argc, char * argv[]) {
-
-	if( argc < 3 ) {
+int main(int argc, char * argv[]) 
+{
+	if( argc < 3 ) 
+	{
 		cerr<<"USAGE: memsim <input-file> { noncontig | first | best | next | worst }\n";
 		exit(0);
 	}
 
-	// Type: 0: first fit, 1: best fit, 2: next fit, 3: worst fit, 
+	// type: 0: first fit, 1: best fit, 2: next fit, 3: worst fit, 
 	// 	4: non-contiguous
 	map<string, int> params_map;
 	params_map["first"] = 0;
@@ -45,21 +46,24 @@ int main(int argc, char * argv[]) {
 	
 	procQueue = priority_queue<process, vector<process>, processComp>();
 	
-	// Read process info
-	if( in ) {
-		// Skip the first line (process number)
+	// read process info
+	if( in ) 
+	{
+		// skip the first line (process number)
 		getline(in, line);
 		
-		while( getline(in, line) ) {
+		while( getline(in, line) ) 
+		{
 			vector<string> proc_info;
 			split(line, proc_info);
-		// Proc_base consists label and size propertiesof that process
+			// proc_base consists label and size propertiesof that process
 			process proc_base, proc_arr, proc_exit;			
 			proc_base.label = proc_info[0][0]; 			
 			proc_base.size = atoi(proc_info[1].c_str()); // e.g. 36
 			
-		// Construct array/exit process info & put into priority queue
-			for( unsigned int i = 2; i < proc_info.size(); i += 2 ) {
+			// construct array/exit process info & put into priority queue
+			for( unsigned int i = 2; i < proc_info.size(); i += 2 ) 
+			{
 				proc_arr = proc_base;
 				proc_arr.time = atoi(proc_info[i].c_str());
 				proc_arr.act = ARR; // Arrival process
@@ -75,18 +79,16 @@ int main(int argc, char * argv[]) {
 	}
 	in.close();
 		
-	// Begin load/unload process
+	// begin load/unload process
 	memManager manager(type); // 0: contiguous, 1: non-contiguous
 	unsigned int time = 0, pretime = 0;
 	
-	while( !procQueue.empty() ) {
-/*		process proc = procQueue.top();
-		cout<<proc.label<<" ";
-		procQueue.pop();
-}*/
-
-		while( procQueue.top().time <= time ) {
-			if( procQueue.empty() ) {
+	while( !procQueue.empty() ) 
+	{
+		while( procQueue.top().time <= time ) 
+		{
+			if( procQueue.empty() ) 
+			{
 				printf("Memory at time %d\n", time);
 				manager.Display();		
 				cout<<"All done.\n";
@@ -95,16 +97,19 @@ int main(int argc, char * argv[]) {
 	
 			process proc = procQueue.top();
 			cout<<proc.label<<" ";
-			if( proc.act == EXIT ) {
-				if( type != 4 ) // Contiguous
+			if( proc.act == EXIT ) 
+			{
+				if( type != 4 ) // contiguous
 					manager.Unload(proc.label);
-				else 			// Non-contiguous
+				else 			// non-contiguous
 					manager.Unload(proc.label, 1); 
 				procQueue.pop();
-			} else {
-				if( type != 4 ) // Contiguous
+			} 
+			else 
+			{
+				if( type != 4 ) // contiguous
 					manager.Load(proc, type); 
-				else 			// Non-contiguous
+				else 			// non-contiguous
 					manager.Load(proc); 
 				procQueue.pop();
 			}
@@ -114,14 +119,19 @@ int main(int argc, char * argv[]) {
 		manager.Display();
 		printf("\nInput time t: ");
 		pretime = time;
-		if( scanf("%u", &time) != 1 ) {
+		if( scanf("%u", &time) != 1 ) 
+		{
 			cerr<<"Incorrect time\n";
 			time = pretime;
 			return 0;
-		} else if( time == 0 ) {
+		} 
+		else if( time == 0 ) 
+		{
 			printf("Exit\n");
 			return 0;
-		} else if( time < pretime ) {
+		} 
+		else if( time < pretime ) 
+		{
 			printf("Can't go back\n");
 			time = pretime;
 		}
@@ -129,22 +139,29 @@ int main(int argc, char * argv[]) {
 	return 0;
 }
 
-// Desc: split line by ' ' or '/t', store elements in proc_info
-void split(string & line, vector<string> & proc_info) {
+// split line by ' ' or '/t', store elements in proc_info
+void split(string & line, vector<string> & proc_info) 
+{
 	char * cline = (char *)malloc(line.size());
 	strcpy(cline, line.c_str());
 	char tmp[10] = {0};
 	int blank = 0, pos = 0;
-	for( unsigned int i = 0; i < strlen(cline); i++ ) {
-		if( cline[i] == ' ' || cline[i] == '\t') { 
+	for( unsigned int i = 0; i < strlen(cline); i++ ) 
+	{
+		if( cline[i] == ' ' || cline[i] == '\t') 
+		{ 
 			blank++;
-			if( blank == 1) {
+			if( blank == 1) 
+			{
 				proc_info.push_back(string(tmp));
 				pos = 0;
 				bzero(tmp, 10);
-			} else
+			} 
+			else
 				continue;
-		} else { // Come to a new word, blank set to 0
+		} 
+		else
+		{ // come to a new word, blank set to 0
 			tmp[pos++] = cline[i];
 			if( blank != 0 )
 				blank = 0;
