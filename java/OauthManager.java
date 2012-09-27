@@ -33,7 +33,6 @@ public class OauthManager
         {
             if (dirProvider.equals(DirectoryProvider.GOOGLE))
                 continue;
-            
 
             // The callback param is for user to jump back to webdir
             // from Linkedin grant permission page
