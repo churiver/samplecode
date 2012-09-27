@@ -16,12 +16,11 @@
 
 using namespace std;
 
-
-///////////////////////////////////////
 const int EXIT = 0;
 const int ARR = 1;
 
-typedef struct {
+typedef struct 
+{
 	int pid; // no use here. use label to mark instead
 	char label;
 	size_t size;
@@ -30,20 +29,19 @@ typedef struct {
 } process;
 
 
-class processComp {
+class processComp 
+{
 public:
 	bool operator() (const process & lhs, const process & rhs);
 };
 
 
-///////////////////////////////////////
-// Pre-define findEntry
-// Because it's used in memManager
+// Pre-define findEntry because it's used in memManager
 class findEntry;
 
 
-///////////////////////////////////////
-class memManager {
+class memManager 
+{
 	
 private:
 	enum { pool_size = 2400, os_size = 80, line_size = 80, page_size = 20 };
@@ -51,7 +49,8 @@ private:
 	char pool[pool_size];
 
 	// freelist is for contigueous memory allocation
-	typedef struct freelist {
+	typedef struct freelist 
+	{
 		char * addr;
 		size_t size;
 		struct freelist * next;
@@ -59,7 +58,8 @@ private:
 	freeList * pFListHeader, * pFListLast, * pFListMax;
 	
 	// procEntry/procTable are for contiguous memory allocation
-	typedef struct {
+	typedef struct 
+	{
 		char label;
 		char * addr;
 		size_t size;
@@ -67,7 +67,8 @@ private:
 	vector<procEntry> procTable;	
 	
 	// pageEntry/pageTable are for non-contiguous
-	typedef struct {
+	typedef struct 
+	{
 		char label;
 		map<int, int> pageMap;
 	} procPage; 
@@ -75,29 +76,34 @@ private:
 	vector<char> memPageTable; // pages status of system memory, 1: occupied, 0: free
 
 public:
-
-	struct entryCompare {
-		bool operator()( const procEntry & lhs, const procEntry & rhs ) {
+	struct entryCompare 
+	{
+		bool operator()( const procEntry & lhs, const procEntry & rhs ) 
+		{
 			return ( lhs.addr < rhs.addr );
 		}
 	} entryComp;
 	
-	class entryFind {
+	class entryFind 
+	{
 	private:
 		char label;
 	public:
 		entryFind(char v):label(v) {}
-		bool operator()(const procEntry & lhs) {
+		bool operator()(const procEntry & lhs) 
+		{
 			return ( lhs.label == label );
 		}
 	};
 	
-	class procPageFind {
+	class procPageFind 
+	{
 	private:
 		char label;
 	public:
 		procPageFind(char v):label(v) {}
-		bool operator()( const procPage & lhs ) {
+		bool operator()( const procPage & lhs ) 
+		{
 			return (lhs.label == label);
 		}
 	};
