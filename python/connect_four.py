@@ -1,3 +1,6 @@
+# Connect four (Pop Out)
+# Auther: Li Yu
+
 from random import *
 
 # Red cell, Yellow cell, empty cell
