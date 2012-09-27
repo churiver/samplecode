@@ -17,10 +17,10 @@ import com.webdir.util.Constant.ConfigType;
  */
 public class OauthManager
 {
-    private EnumMap<DirectoryProvider, OAuthService> services;
-    private OAuthService service;
-    private Token requestToken;
-    private String sid;
+    private EnumMap<DirectoryProvider, OAuthService> services = null;
+    private OAuthService service = null;
+    private Token requestToken = null;
+    private String sid = null;
 
     @SuppressWarnings("unchecked")
     public OauthManager(String sessionID)
@@ -31,11 +31,9 @@ public class OauthManager
         // Using the Scribe library to begin the chain of Oauth2 calls.
         for (DirectoryProvider dirProvider : DirectoryProvider.values())
         {
-            // TODO add support for google in Consts.java
             if (dirProvider.equals(DirectoryProvider.GOOGLE))
-            {
                 continue;
-            }
+            
 
             // The callback param is for user to jump back to webdir
             // from Linkedin grant permission page
@@ -58,7 +56,7 @@ public class OauthManager
      */
     public String getUrl(DirectoryProvider dirProvider, ConfigType urlType)
     {
-        String url;
+        String url = null;
         if (dirProvider.equals(DirectoryProvider.GOOGLE))
         {
             url = Constant.URL_POP_COME;
