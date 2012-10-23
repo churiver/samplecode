@@ -1,4 +1,4 @@
-package com.webdir.model;
+package com.oauthapp.model;
 
 import java.util.EnumMap;
 
@@ -7,9 +7,9 @@ import org.scribe.model.Token;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.webdir.util.Constant;
-import com.webdir.util.Constant.DirectoryProvider;
-import com.webdir.util.Constant.ConfigType;
+import com.oauthapp.util.Constant;
+import com.oauthapp.util.Constant.DirectoryProvider;
+import com.oauthapp.util.Constant.ConfigType;
 
 /**
  * @author yul
@@ -22,7 +22,7 @@ public class OauthManager
     private Token requestToken = null;
     private String sid = null;
 
-    @SuppressWarnings("unchecked")
+
     public OauthManager(String sessionID)
     {
         services = new EnumMap<DirectoryProvider, OAuthService>(DirectoryProvider.class);
@@ -31,10 +31,7 @@ public class OauthManager
         // Using the Scribe library to begin the chain of Oauth2 calls.
         for (DirectoryProvider dirProvider : DirectoryProvider.values())
         {
-            if (dirProvider.equals(DirectoryProvider.GOOGLE))
-                continue;
-
-            // The callback param is for user to jump back to webdir
+            // The callback param is for user to jump back to oauthapp
             // from Linkedin grant permission page
             OAuthService service = new ServiceBuilder()
                     .provider(Constant.API_CLASSES.get(dirProvider))
@@ -56,11 +53,6 @@ public class OauthManager
     public String getUrl(DirectoryProvider dirProvider, ConfigType urlType)
     {
         String url = null;
-        if (dirProvider.equals(DirectoryProvider.GOOGLE))
-        {
-            url = Constant.URL_POP_COME;
-            return url;
-        }
 
         switch (urlType)
         {
@@ -70,8 +62,7 @@ public class OauthManager
                 url = service.getAuthorizationUrl(requestToken);
                 break;
             case REVOKE:
-                // url = Constant.REVOKE_URLS.get(dirProvider);
-                url = Constant.URL_WEBDIR + "/config/user?" + Constant.PARAM_CONFIG_REVOKE + "="
+                url = Constant.URL_OAUTHAPP + "/config/user?" + Constant.PARAM_CONFIG_REVOKE + "="
                         + dirProvider.toString();
                 break;
             default:
