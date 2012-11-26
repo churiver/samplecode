@@ -1,88 +1,159 @@
-package com.oauthapp.model;
-
-import java.util.EnumMap;
-
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
-import org.scribe.oauth.OAuthService;
-
-import com.oauthapp.util.Constant;
-import com.oauthapp.util.Constant.DirectoryProvider;
-import com.oauthapp.util.Constant.ConfigType;
-
 /**
- * @author yul
- * 
+ * @author : Li Yu
+ * @date : 10/27/2012
  */
-public class OauthManager
+package com.javautil.cache;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+
+interface Cache<K, V>
 {
-    private EnumMap<DirectoryProvider, OAuthService> services = null;
-    private OAuthService service = null;
-    private Token requestToken = null;
-    private String sid = null;
+    V get(K key);
+    void put(K key, V value);
+    void remove(K key);
+    int size();
+}
 
+class Entry<K, V>
+{
+    public final K key;    // key should be immutable
+    public V value;
 
-    public OauthManager(String sessionID)
+    Entry(K key, V value)
     {
-        services = new EnumMap<DirectoryProvider, OAuthService>(DirectoryProvider.class);
-        sid = sessionID;
+        this.key = key;
+        this.value = value;
+    }
 
-        // Using the Scribe library to begin the chain of Oauth2 calls.
-        for (DirectoryProvider dirProvider : DirectoryProvider.values())
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof Entry)
         {
-            // The callback param is for user to jump back to oauthapp
-            // from Linkedin grant permission page
-            OAuthService service = new ServiceBuilder()
-                    .provider(Constant.API_CLASSES.get(dirProvider))
-                    .apiKey(Constant.API_KEYS.get(dirProvider))
-                    .apiSecret(Constant.API_SECRETS.get(dirProvider))
-                    .callback(
-                            Constant.URL_WEBDIR + "/config/user?" + Constant.PARAM_CONFIG_GRANT + "="
-                                    + dirProvider.toString() + "&sid=" + sid).build();
-            services.put(dirProvider, service);
+            Entry entry = (Entry)obj;
+            return key.equals(entry.key) && value.equals(entry.value);
+        }
+        else
+            return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return key.hashCode()^value.hashCode();
+    }
+}
+
+class LRUCache<K, V> implements Cache<K, V>
+{
+    class Node
+    {
+        public K key;
+        public V value;
+        public long expires;
+        public Node previous, next;
+
+        public Node()
+        {}
+
+        public Node(K key, V value)
+        {
+            this.key = key;
+            this.value = value;
         }
     }
 
-    /*******************************************************
-     * Get authorization URL
-     * 
-     * @param dirProvider
-     * @return
-     */
-    public String getUrl(DirectoryProvider dirProvider, ConfigType urlType)
-    {
-        String url = null;
+    Map<K, Node> node_map = Collections.synchronizedMap(new HashMap<K, Node>());
+    Node first = new Node(), last = new Node();
+    int max_size;
 
-        switch (urlType)
+    public LRUCache(int max_size)
+    {
+        this.max_size = max_size;
+        first.next = last;
+        last.previous = first;
+    }
+
+    synchronized void addToFirst(Node node)
+    {
+        node.previous = first;
+        node.next = first.next;
+        first.next.previous = node;
+        first.next = node;
+    }
+
+    synchronized void moveToFirst(Node node)
+    {
+        node.previous.next = node.next;
+        node.next.previous = node.previous;
+        node.previous = first;
+        node.next = first.next;
+        first.next.previous = node;
+        first.next = node;        
+    }
+
+    synchronized void remove(Node node)
+    {
+        node.previous.next = node.next;
+        node.next.previous = node.previous;
+        node.previous = null;
+        node.next = null;        
+    }
+
+    public V get(K key)
+    {
+        Node node = node_map.get(key);
+        if (node == null)
+            return null;
+        if (node != first.next)
+            moveToFirst(node);
+        return node.value;
+    }
+
+    public void put(K key, V value)
+    {
+        Node node = node_map.get(key);
+        if (node == null)
         {
-            case GRANT:
-                service = services.get(dirProvider);
-                requestToken = service.getRequestToken();
-                url = service.getAuthorizationUrl(requestToken);
-                break;
-            case REVOKE:
-                url = Constant.URL_OAUTHAPP + "/config/user?" + Constant.PARAM_CONFIG_REVOKE + "="
-                        + dirProvider.toString();
-                break;
-            default:
-                url = "Not-Set-Yet";
+            node = new Node(key, value);
+            node_map.put(key, node);
+            addToFirst(node);
         }
-        return url;
+        else
+        {
+            node.value = value;
+            moveToFirst(node);
+        }
 
+        if (node_map.size() > max_size)
+            remove(last.previous);
     }
 
-    /******************************************************
-     * Get accessToken from Oauth API
-     * 
-     * @param vcode
-     * @return
-     */
-    public Token getAccessToken(String vcode) throws Exception
+    public void remove(K key)
     {
-        
-        Verifier verifier = new Verifier(vcode);
-        return service.getAccessToken(requestToken, verifier);
+        Node node = node_map.get(key);
+        if (node == null)
+            return;
+        remove(node);
+        node_map.remove(key);
     }
 
+    public int size()
+    {
+        return node_map.size();
+    }
+
+    public void print()
+    {
+        Node current = first;
+        String chain = "";
+        while (current != null)
+        {
+            chain += current.value + " ";
+            current = current.next;
+        }
+        System.out.println(chain);
+    }
 }
