@@ -1,13 +1,11 @@
 Sample_code
 =========
 
-Show my code here
-
-There're samples of my code in C++/Java/Python.
+Here are my sample code in C++/Java/Python.
 
 1. C++:
-	A simple memory allocate simulator.
+	A simple memory allocate simulator in one of my course projects.
 2. Java:
-	A modulo of my one project. Provide management on Oauth API.
+	A module that interacts with Oauth API in one of my exercises.
 3. Python:
-	A Connect Four game (Pop Out variant ). For the game, see more on http://en.wikipedia.org/wiki/Connect_Four
+	A Connect-Four game (Pop Out variant) in one of my course projects. Check http://en.wikipedia.org/wiki/Connect_Four for more on the game.
